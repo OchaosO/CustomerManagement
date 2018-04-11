@@ -1,0 +1,286 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
+	<!-- Namespace xmlns:p= erlaubt das hinzufügen von HTML 5 Elementen auf JSF Komponenten -->	
+
+	<ui:composition template="/templates/template.xhtml">
+	
+		<ui:define name="title">
+			<h:outputText rendered="#{customers.customerId == 0}" value="Neuen Datensatz anlegen"></h:outputText>
+			<h:outputText rendered="#{customers.customerId != 0}" value="##{ customers.customerId } bearbeiten" />
+		</ui:define>
+		
+		<ui:define name="content">
+		
+			<!-- Customer initinialisieren / an Seite binden-->
+			<!-- Damit ist sichergestellt, dass sich immer ein Datensat im Context der Managed Bean befindet -->
+			<f:metadata>
+				<f:viewParam name="id" value="#{customers.customerId}"></f:viewParam>
+				<f:event listener="#{customers.initCustomer()}" type="preRenderView"></f:event>
+			</f:metadata>
+		
+			<!-- 
+			prependId auf false setzen um AJAX Funktionen zu realisieren ( z.B.: Neu laden der Seite / an den Anfang springen wenn Button gedrückt wird usw. zu unterbinden ) 
+			Zusätlich die CommandButtons mit einem ajax element versehen. 
+			Danach muss die Applikation nicht mehr die ganze Seite neu rendern und ausliefern wenn ein Button gedrückt wird. Die Position in der sich der User 
+			befindet bleibt erhalten. Die Seite wird nur im Hintergrund neu geladen und nur die notwendigen Bereiche werden ersetzt und neu dargestellt.  
+			-->
+			<h:form styleClass="form-horizontal" id="customerForm" name="customerForm" prependId="false">
+				<div class="row">
+					<div class="col-sm-12">
+						<hr></hr>
+						<h4>Stammdaten</h4>
+					</div>
+				</div>				
+			
+				<div class="form-group">
+					<!-- Der Wert Attibut for muss mit dem Wert im Attribut des Input Textes übereinstimmen dammit der HTML Code
+					den JSF generiert den Zusammenhang zwischen dem Label und dem Input Text herstellen kann.
+					Zudem wird das Attribut Label im Input Text gesetzt damit Nachrichten / Fehlermeldungen einen sinnvollen Nachem ausgeben -->
+					<!-- 
+					When creating forms with JSF, one thing I don’t enjoy much is having to define label for an input twice, one 
+					for h:outputLabel and one for input component itself to provide better looking validation messages. 
+					If you don’t provide label option on an input component, JSF uses client id so you end up with messages 
+					like “_j12:input : Value is required”. Solution is to use label like following to get “Age: Value is required”
+					 -->
+					<h:outputLabel value="Nachname" for="lastName" styleClass="control-label col-sm-2"/>
+					<div class="col-sm-10">
+						<h:inputText value="#{customers.customer.lastName}" 
+							name="lastName" styleClass="form-control" id="lastName" label="LastName"/>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<h:outputLabel value="Vorname" for="firstName" styleClass="control-label col-sm-2"/>
+					<div class="col-sm-10">
+						<h:inputText value="#{customers.customer.firstName}" 
+							name="firstName" styleClass="form-control" id="firstName" label="FirstName"/>
+					</div>
+				</div>
+				 
+				<div class="form-group">
+					<h:outputLabel value="Geschlecht" for="gender" styleClass="control-label col-sm-2" />
+					<div class="col-sm-10">
+						<h:selectOneRadio value="#{customers.customer.gender}" layout="pageDirection"
+											id="gender" name="gender" label="Gender">
+							<f:selectItem itemValue="Male" itemLabel="Männlich"/>
+							<f:selectItem itemValue="Female" itemLabel="Weiblich"/>
+							<f:selectItem itemValue="Unknown" itemLabel="Unbekannt"/>
+						</h:selectOneRadio>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<h:outputLabel value="Geburtstag" for="birthday" styleClass="control-label col-sm-2"/>
+					<div class="col-sm-10">
+						<h:inputText value="#{customers.customer.birthday}" name="birthday" 
+								p:placeholder="Geburtstag" label="Birthday" 
+								id="birthday" styleClass="form-control">
+							<f:convertDateTime pattern="dd.MM.yyyy"/>		
+						</h:inputText>
+							
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<h:outputLabel value="Beziehung" for="relationship" styleClass="control-label col-sm-2"/>
+					<div class="col-sm-10">
+						<h:selectOneMenu value="#{customers.customer.relationship}" name="relationship"
+										 id="relationship" label="Relationship" styleClass="form-control">
+							<f:selectItem itemValue="Unknown" itemLabel="Unbekannt"/>
+							<f:selectItem itemValue="Colleague" itemLabel="Kollege"/>
+							<f:selectItem itemValue="Friend" itemLabel="Freund"/>
+							<f:selectItem itemValue="Family" itemLabel="Familie"/>
+							<f:selectItem itemValue="Job" itemLabel="Arbeitskollege"/>
+					</h:selectOneMenu>
+					</div>					
+				</div>
+				
+				<div class="row">
+					<div class="col-sm-12">
+						<hr></hr>
+						<h4>Adressen</h4>
+					</div>
+				</div>
+				
+				<div class="row form-group">
+					<div class="col-sm-12">
+						<h:dataTable styleClass="table table-bordered table-striped"
+									var="entry" value="#{customers.addresses}"
+									rendered="#{customers.addresses.size() > 0}"
+									columnClasses="col-sm-2,col-sm-1,col-sm-2,col-sm-2,col-sm-2,col-sm-3">
+									
+							<h:column>
+								<f:facet name="header">Strasse</f:facet>
+								<!-- Anzeigemodus wenn nicht editierbar (Ausgewertet über das Feld editing in der Bean) -->
+								<h:outputText value="#{entry.address.street}"  rendered="#{!entry.editing}"/>
+								<!-- Eingabefeld wenn editierbar (Ausgewertet über das Feld editing in der Bean) -->
+								<h:inputText id="street" value="#{entry.address.street}"  rendered="#{entry.editing}"/>
+							</h:column>
+							<h:column>
+								<f:facet name="header">PLZ</f:facet>
+								<h:outputText value="#{entry.address.zip}"  rendered="#{!entry.editing}"/>
+								<h:inputText id="zip" value="#{entry.address.zip}"  rendered="#{entry.editing}"/>
+							</h:column>
+							<h:column>
+								<f:facet name="header">Ort</f:facet>
+								<h:outputText value="#{entry.address.city}"  rendered="#{!entry.editing}"/>
+								<h:inputText id="city" value="#{entry.address.city}"  rendered="#{entry.editing}"/>
+							</h:column>
+							<h:column>
+								<f:facet name="header">Land</f:facet>
+								<h:outputText value="#{entry.address.country}"  rendered="#{!entry.editing}"/>
+								<h:inputText id="country" value="#{entry.address.country}"  rendered="#{entry.editing}"/>
+							</h:column>
+							<h:column>
+								<f:facet name="header">Art</f:facet>
+								<h:outputText value="#{entry.addressKind}" rendered="#{!entry.editing}"/>
+								<h:selectOneRadio value="#{entry.address.kind}" rendered="#{entry.editing}" layout="pageDirection">
+									<f:selectItem itemValue="Business" itemLabel="Geschäftsadressse"/>
+									<f:selectItem itemValue="Private" itemLabel="Privatadresse"/>
+									<f:selectItem itemValue="Unknown" itemLabel="Unbekannt"/>
+								</h:selectOneRadio>
+							</h:column>
+							<h:column>
+								<f:facet name="header">Aktion</f:facet>
+								<h:commandButton action="#{entry.toggleEditing()}" value="Bearbeiten" 
+												rendered="#{!entry.editing}" styleClass="btn btn-info">
+									<f:ajax execute="@form" render="@all"></f:ajax>				
+								</h:commandButton>
+								<h:commandButton action="#{entry.toggleEditing()}" value="Fertig" 
+												rendered="#{entry.editing}" styleClass="btn btn-success">
+									<f:ajax execute="@form" render="@all"></f:ajax>					
+								</h:commandButton>
+								<!-- Löscht die Adresse aus der Managed Customer Bean (Frontend) -->
+								<h:commandButton action="#{customers.removeAddress(entry)}" value="Löschen" 
+												 styleClass="btn btn-danger" style="margin:left:10px">
+									<f:ajax execute="@form" render="@all"></f:ajax>	
+								</h:commandButton>
+							</h:column>
+							
+						</h:dataTable>
+						
+						<h:outputText value="Keine Adresse angelegt" rendered="#{customers.addresses.size() == 0}"/>
+					
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<div class="col-sm-12">
+						<h:commandButton action="#{customers.addAddress()}" value="Adresse hinzufügen" 
+										styleClass="btn btn-default">
+								<f:ajax execute="@form" render="@all"></f:ajax>					
+						</h:commandButton>
+					</div>
+				</div>
+				
+				<div class="row">
+					<div class="col-sm-12">
+						<hr></hr>
+						<h4>Kommunikationsdaten</h4>
+					</div>
+				</div>
+				
+				<div class="row form-group">
+					<div class="col-sm-12">
+						<h:dataTable var="comm" value="#{customers.communications}"
+									rendered="#{customers.communications.size() > 0}"
+									styleClass="table table-bordered table-striped"
+									id="communication" 
+									columnClasses="col-sm-3,col-sm-3,col-sm-1,col-sm-2,col-sm-3">
+
+						
+						<h:column>
+							<f:facet name="header">Name</f:facet>
+							<h:outputText value="#{comm.communicaton.name}" rendered="#{!comm.editing}"/>
+							<h:inputText id="name" value="#{comm.communicaton.name}" rendered="#{comm.editing}"/>
+						</h:column>
+						<h:column>
+							<f:facet name="header">Wert</f:facet>
+							<h:outputText value="#{comm.communicaton.value}" rendered="#{!comm.editing}"/>
+							<h:inputText id="value" value="#{comm.communicaton.value}" rendered="#{comm.editing}"/>
+						</h:column>
+						<h:column>
+							<f:facet name="header">Typ</f:facet>
+							<h:outputText value="#{comm.communikationType}"  rendered="#{!comm.editing}"/>
+							<h:selectOneRadio value="#{comm.communicaton.communicationType}"
+												layout="pageDirection" rendered="#{comm.editing}">
+								<f:selectItem itemValue="Email" itemLabel="E-Mail"/>
+								<f:selectItem itemValue="Web" itemLabel="Internetadresse"/>
+								<f:selectItem itemValue="Telephone" itemLabel="Festnetz"/>
+								<f:selectItem itemValue="Mobile" itemLabel="Mobil"/>
+								<f:selectItem itemValue="Fax" itemLabel="Fax"/>
+								<f:selectItem itemValue="Unknown" itemLabel="Unbekannt"/>
+							</h:selectOneRadio>
+						</h:column>
+						<h:column>
+							<f:facet name="header">Art</f:facet>
+							<h:outputText value="#{comm.communicationKind}"  rendered="#{!comm.editing}"/>
+							<h:selectOneRadio value="#{comm.communicaton.kind}"
+												layout="pageDirection" rendered="#{comm.editing}">
+								<f:selectItem itemValue="Business" itemLabel="Geschäft"/>
+								<f:selectItem itemValue="Private" itemLabel="Privat"/>
+								<f:selectItem itemValue="Unknown" itemLabel="Unbekannt"/>
+							</h:selectOneRadio>
+						</h:column>
+						<h:column>
+								<f:facet name="header">Aktion</f:facet>
+								<h:commandButton action="#{comm.toggleEditing()}" value="Bearbeiten" 
+												rendered="#{!comm.editing}" styleClass="btn btn-info">
+									<f:ajax execute="@form" render="@all"></f:ajax>					
+								</h:commandButton>
+								<h:commandButton action="#{comm.toggleEditing()}" value="Fertig" 
+												rendered="#{comm.editing}" styleClass="btn btn-success">
+									<f:ajax execute="@form" render="@all"></f:ajax>					
+								</h:commandButton>
+								<!-- Löscht die Adresse aus der Managed Customer Bean (Frontend) -->
+								<h:commandButton action="#{customers.removeCommunication(comm)}" value="Löschen" 
+												 styleClass="btn btn-danger" style="margin:left:10px">
+									<f:ajax execute="@form" render="@all"></f:ajax>	
+								</h:commandButton>
+						</h:column>
+						
+						</h:dataTable>
+						
+						<h:outputText value="Keine Kommunikationsinformationen vorhanden" 
+										rendered="#{customers.communications.size() == 0}"
+										id="noCommunication"/>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<div class="col-sm-12">
+						<h:commandButton action="#{customers.addCommunication()}" value="Kommunikationseintrag hinzufügen" 
+										styleClass="btn btn-default">
+							<f:ajax execute="@form" render="@all"></f:ajax>					
+						</h:commandButton>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<div class="col-sm-12">
+						<h:commandButton action="#{customers.create()}" value="Speichern" 
+										 rendered="#{customers.customerId == 0}" styleClass="btn btn-success">
+							<f:ajax execute="@form" render="@all"></f:ajax>					 
+						</h:commandButton>
+						
+						<h:commandButton action="#{customers.update()}" value="Übernehmen" 
+										 rendered="#{customers.customerId != 0}" styleClass="btn btn-success">
+							<f:ajax execute="@form" render="@all"></f:ajax>					 
+						</h:commandButton>
+						
+						<h:commandButton immediate="true" action="/index" value="Abbrechen" 
+										 styleClass="btn btn-danger" style="margin-left:10px"/>
+					</div> 
+					
+				</div>
+				
+			</h:form>
+		
+		</ui:define>
+	
+	</ui:composition>
+</html>

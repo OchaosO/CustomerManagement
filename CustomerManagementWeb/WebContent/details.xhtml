@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html">
+
+	<ui:composition template="/templates/template.xhtml">
+	
+	
+		<ui:define name="title">Kundenverwaltung: ##{customers.customerId} (#{customers.customer.lastName })</ui:define>
+		
+		<ui:define name="content">
+			<!-- Laden des Kunden in die Seite -->
+			<f:metadata>
+				<f:viewParam name="id" value="#{customers.customerId}"></f:viewParam>
+				<!-- Event registrieren. Pre Render view wird ausgeführt bevor die Seite dargestellt wird  
+				damit sind im managed Bean immer Daten und wir können darauf zugreifen -->
+				<f:event listener="#{customers.initCustomer()}" type="preRenderView"></f:event>
+			</f:metadata>
+			
+			<!-- Anbinden von Operationen an die Seite  -->
+			<h:form>
+				<table class="table">
+					<tr>
+						<td>
+							<h:link outcome="/index" value="Alle zeigen" styleClass="btn btn-default"></h:link>
+						</td>
+						<td>
+							<h:link outcome="/editUser" value="Neu" styleClass="btn btn-success"></h:link>
+						</td>
+						<td>
+							<h:link outcome="/editUser" value="Bearbeiten" styleClass="btn btn-warning">
+								<f:param name="id" value="#{customers.customerId}"></f:param>
+							</h:link>
+						</td>
+						<td>
+							<!-- Nur Rendern wenn User der Gruppe Administrator angeört. Diese Funktion kommt direkt vom Application Server -->
+							<!-- Das outcome message ist per explizieter Navigationsregel in der faces.config umgebogen auf die Seite send.xhtml -->
+							<h:link rendered="#{request.isUserInRole('ADMINISTRATOR')}" outcome="/message" value="Nachricht" styleClass="btn btn-info">
+								<f:param name="id" value="#{customers.customerId}"></f:param>
+							</h:link>
+						</td>
+						<td>
+							<h:link rendered="#{request.isUserInRole('ADMINISTRATOR')}" outcome="/delete" value="Löschen" styleClass="btn btn-danger">
+								<f:param name="id" value="#{customers.customerId}"></f:param>
+							</h:link>
+						</td>
+					</tr>
+				</table>
+			</h:form>
+			
+			<table class="table table-bordered table-striped">
+				<thead>
+					<tr>
+						<td colspan = "2">Kundeninformationen</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th>Name</th>
+						<td>#{ customers.customer.firstName } #{ customers.customer.lastName }</td>
+					</tr>
+					<tr>
+						<th>Geburtstag</th>
+						<td>#{ customers.birthdayFormatted }</td>
+					</tr>
+					<tr>
+						<th>Beziehung</th>
+						<td>#{ customers.relationshipTranslated }</td>
+					</tr>
+				</tbody>
+			</table>
+			
+			<!-- Datatable (jsf Komponente) interiert über die Liste der Adressen und speichert jeden Satz im per var angegebenen identifier-->
+			<h:dataTable styleClass="table table-bordered table-striped" 
+						var="entry" value="#{customers.addresses}">
+				<h:column>
+					<f:facet name="header">Strasse</f:facet>
+					#{entry.address.street}
+				</h:column>
+				<h:column>
+					<f:facet name="header">PLZ</f:facet>
+					#{entry.address.zip}
+				</h:column>
+				<h:column>
+					<f:facet name="header">Ort</f:facet>
+					#{entry.address.city}
+				</h:column>
+				<h:column>
+					<f:facet name="header">Land</f:facet>
+					#{entry.address.country}
+				</h:column>
+				<h:column>
+					<f:facet name="header">Art</f:facet>
+					#{entry.addressKind}
+				</h:column>
+			</h:dataTable>
+			
+			<h:dataTable styleClass="table table-bordered table-striped" 
+						var="entry" value="#{customers.communications}">
+				<h:column>
+					<f:facet name="header">Kind</f:facet>
+					#{entry.communicationKind}
+				</h:column>
+				<h:column>
+					<f:facet name="header">Typ</f:facet>
+					#{entry.communikationType}
+				</h:column>
+				<h:column>
+					<f:facet name="header">Name</f:facet>
+					#{entry.communicaton.name}
+				</h:column>
+				<h:column>
+					<f:facet name="header">Ort</f:facet>
+					#{entry.communicaton.value}
+				</h:column>
+			</h:dataTable>
+			
+			
+		</ui:define>
+	
+	</ui:composition>
+</html>

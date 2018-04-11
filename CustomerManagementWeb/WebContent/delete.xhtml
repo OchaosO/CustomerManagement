@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html">
+
+	<ui:composition template="/templates/template.xhtml">
+	
+		<ui:define name="title">Kundenverwaltung ##{customers.customerId} (#{customers.customer.lastName})</ui:define>
+	
+		<ui:define name="content">
+			<f:metadata>
+				<f:viewParam name="id" value="#{customers.customerId}"></f:viewParam>
+				<f:event listener="#{customers.initCustomer()}" type="preRenderView"></f:event>
+			</f:metadata>
+			
+			<div class="row">
+				<div class="col-sm-12">
+					<h4>Benutzer löschen?</h4>
+					<hr />
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-sm-12">
+					Sind Sie sicher, dass Sie den Benutzer <em>#{customers.customer.lastName}, #{customers.customer.firstName}</em> löchen wollen?
+				</div>
+			</div>
+			
+			<div class="row">&nbsp;</div>
+			
+			<h:form>
+				<div class="row">
+					<div class="col-sm-12">
+						<h:link outcome="/details" value="Abrechen" styleClass="btn btn-default">
+							<f:param name="id" value="#{customers.customerId}"></f:param>
+						</h:link>
+						<h:commandButton action="#{customers.delete()}" value="Löschen" 
+										styleClass="btn btn-danger" style="margin:left:10px"/>
+					</div>
+				</div>
+			
+			</h:form>
+			
+			<div class="row">&nbsp;</div>
+		
+		</ui:define>
+	</ui:composition>
+</html>

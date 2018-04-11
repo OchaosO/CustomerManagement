@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"> 
+
+<h:head>
+	<meta charset="utf-8" />
+	<title>
+		<ui:insert name="title">Kundenverwaltung</ui:insert>
+	</title>
+	
+	<h:outputStylesheet library="css" name="bootstrap-theme.min.css"></h:outputStylesheet>
+	<h:outputStylesheet library="css" name="bootstrap.min.css"></h:outputStylesheet>
+	
+</h:head> 
+<body> 
+
+	<div class="container">
+		<ui:insert name="header"> 
+			<ui:include src="header.xhtml" />
+		</ui:insert>
+		
+		<ui:insert name="content">Kein Inhalt definiert</ui:insert>
+		
+		<ui:insert name="footer">
+			<ui:include src="footer.xhtml" />
+		</ui:insert>
+		
+		<h:outputScript library="js" name="jquery-3.3.1.min.js"></h:outputScript>
+		<h:outputScript library="js" name="bootstrap.min.js"></h:outputScript>
+		<ui:insert name="scripts"> </ui:insert>
+	</div>
+
+</body> 
+</html>

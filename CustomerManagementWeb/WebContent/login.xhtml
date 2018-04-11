@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html">
+
+	<ui:composition template="/templates/template.xhtml">
+	
+		<ui:define name="title">Anmeldung</ui:define>
+		
+		<ui:define name="content">
+			
+			<div class="row">
+				<div class="col-sm-12">
+					<h4>Anmeldung erforderlich</h4>
+					<hr></hr>
+				</div>
+			</div>
+			
+			<form method="POST" action="j_security_check" >
+			
+				<div class="row form-group">
+				
+					<div class="col-sm-12">
+						<h:outputLabel for="j_username" value="Anmeldename" />
+					</div>
+					<div class="col-sm-10">
+						<h:inputText id="j_username" size="20"/>
+					</div>
+					
+					<div class="col-sm-12">
+						<h:outputLabel for="j_password" value="Kennwort" />
+					</div>
+					<div class="col-sm-10">
+						<h:inputText id="j_password" size="20"/>
+					</div>
+					
+					<div class="col-sm-12" style="margin:top:20px">
+						<input type="submit" value="Anmelden" class="btn btn-default"/>
+					</div>
+				
+				</div>
+			
+			</form>
+			
+		</ui:define>
+	
+	</ui:composition>
+</html>
